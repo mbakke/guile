@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
@@ -708,6 +709,114 @@ SCM_DEFINE (scm_lstat, "lstat", 1, 0, 0,
 
 
 #ifdef HAVE_POSIX
+
+/* {Mount points}
+ */
+
+static SCM
+scm_statvfs2scm (struct statvfs_or_statvfs64 *statvfs_temp)
+{
+  SCM ans = scm_c_make_vector (11, SCM_UNSPECIFIED);
+
+  SCM_SIMPLE_VECTOR_SET(ans, 0, scm_from_ulong (statvfs_temp->f_bsize));
+  SCM_SIMPLE_VECTOR_SET(ans, 1, scm_from_ulong (statvfs_temp->f_frsize));
+  SCM_SIMPLE_VECTOR_SET(ans, 2, scm_from_fsblkcnt_t_or_fsblkcnt64_t (statvfs_temp->f_blocks));
+  SCM_SIMPLE_VECTOR_SET(ans, 3, scm_from_fsblkcnt_t_or_fsblkcnt64_t (statvfs_temp->f_bfree));
+  SCM_SIMPLE_VECTOR_SET(ans, 4, scm_from_fsblkcnt_t_or_fsblkcnt64_t (statvfs_temp->f_bavail));
+  SCM_SIMPLE_VECTOR_SET(ans, 5, scm_from_fsfilcnt_t_or_fsfilcnt64_t (statvfs_temp->f_files));
+  SCM_SIMPLE_VECTOR_SET(ans, 6, scm_from_fsfilcnt_t_or_fsfilcnt64_t (statvfs_temp->f_ffree));
+  SCM_SIMPLE_VECTOR_SET(ans, 7, scm_from_fsfilcnt_t_or_fsfilcnt64_t (statvfs_temp->f_favail));
+  SCM_SIMPLE_VECTOR_SET(ans, 8, scm_from_ulong (statvfs_temp->f_fsid));
+  SCM_SIMPLE_VECTOR_SET(ans, 9, scm_from_ulong (statvfs_temp->f_flag));
+  SCM_SIMPLE_VECTOR_SET(ans, 10, scm_from_ulong (statvfs_temp->f_namemax));
+  {
+    return ans;
+  }
+}
+
+SCM_DEFINE (scm_statvfs, "statvfs", 1, 1, 0,
+            (SCM object, SCM exception_on_error),
+            "Return an object containing information about the file system\n"
+	    "determined by @var{object}.  @var{object} can be a string containing\n"
+	    "a file name or a port or integer file descriptor which is open\n"
+	    "on a file (in which case @code{fstat} is used as the underlying\n"
+	    "system call).\n"
+	    "\n"
+            "If the optional @var{exception_on_error} argument is true, which\n"
+            "is the default, an exception will be raised if the underlying\n"
+            "system call returns an error, for example if the file system is not\n"
+            "readable. Otherwise, an error will cause\n"
+            "@code{statvfs} to return @code{#f}."
+	    "\n"
+	    "The object returned by a successful call to @code{statvfs} can be\n"
+            "passed as a single parameter to the following procedures, all of\n"
+            "which return integers:\n"
+	    "\n"
+	    "@table @code\n"
+	    "@item statvfs:block-size\n"
+	    "The block size of the file system.\n"
+	    "@item statvfs:fragment-size\n"
+	    "The fragment size.\n"
+	    "@item statvfs:blocks\n"
+	    "The size of the file system in @code{fragment-size} units.\n"
+	    "@item statvfs:blocks-free\n"
+	    "The number of free blocks.\n"
+	    "@item statvfs:blocks-available\n"
+	    "The number of free blocks available for unprivileged users.\n"
+	    "@item statvfs:files\n"
+	    "The number of inodes.\n"
+	    "@item statvfs:files-free\n"
+	    "Number of free inodes\n"
+	    "@item statvfs:files-available\n"
+	    "The number of inodes available for unprivileged users.\n"
+	    "@item statvfs:fsid\n"
+	    "The file system ID.\n"
+	    "@item statvfs:flags\n"
+	    "Mount flags.\n"
+	    "@item statvfs:name-max\n"
+	    "Maximum file name length\n"
+	    "@end table\n"
+	    "\n")
+#define FUNC_NAME s_scm_statvfs
+{
+  int rv;
+  int fdes;
+  struct statvfs_or_statvfs64 statvfs_temp;
+
+  if (scm_is_integer (object))
+    {
+      SCM_SYSCALL (rv = fstatvfs_or_fstatvfs64 (scm_to_int (object), &statvfs_temp));
+    }
+  else if (scm_is_string (object))
+    {
+      char *file = scm_to_locale_string (object);
+      SCM_SYSCALL (rv = statvfs_or_statvfs64 (file, &statvfs_temp));
+      free (file);
+    }
+  else
+    {
+      object = SCM_COERCE_OUTPORT (object);
+      SCM_VALIDATE_OPFPORT (1, object);
+      fdes = SCM_FPORT_FDES (object);
+      SCM_SYSCALL (rv = fstatvfs_or_fstatvfs64 (fdes, &statvfs_temp));
+    }
+
+  if (rv == -1)
+    {
+      if (SCM_UNBNDP (exception_on_error) || scm_is_true (exception_on_error))
+        {
+          int en = errno;
+          SCM_SYSERROR_MSG ("~A: ~S",
+                            scm_list_2 (scm_strerror (scm_from_int (en)),
+                                        object),
+                            en);
+        }
+      else
+        return SCM_BOOL_F;
+    }
+  return scm_statvfs2scm (&statvfs_temp);
+}
+#undef FUNC_NAME
 
 /* {Modifying Directories}
  */

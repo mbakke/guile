@@ -498,3 +498,46 @@
                ;; or not is system-defined, so it's possible it just works.
                (string? (crypt "pass" "$X$abc")))
              (lambda _ #t)))))
+
+;;
+;; statvfs
+;;
+
+(with-test-prefix "statvfs"
+
+  (pass-if "file system has available space"
+    (if (not (defined? 'statvfs))
+        (throw 'unsupported)
+        (let* ((dir (getcwd))
+               (vfs (statvfs dir)))
+          (> (statvfs:blocks vfs) (statvfs:blocks-available vfs)))))
+
+  (pass-if "file name, port, and fd are equal"
+    (if (not (defined? 'statvfs))
+        (throw 'unsupported)
+        (if (file-exists? "/proc/self/fd")   ;Linux
+            (let* ((file "/dev/null")
+                   (port (open-output-file file))
+                   (fd (fileno port))
+                   (stat-file (statvfs file))
+                   (stat-port (statvfs port))
+                   (stat-fd (statvfs fd)))
+              (close-port port)
+              (equal? stat-file stat-port stat-fd))
+            (throw 'unsupported))))
+
+  (pass-if-equal "file not found, exception"
+      ENOENT
+    (if (not (defined? 'statvfs))
+        (throw 'unsupported)
+        (catch 'system-error
+          (lambda ()
+            (statvfs "i-dont-exist"))
+          (lambda args
+            (system-error-errno args)))))
+
+  (pass-if-equal "file not found, no exception"
+      #f
+    (if (not (defined? 'statvfs))
+        (throw 'unsupported)
+        (statvfs "its-gone" #f))))

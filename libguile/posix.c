@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <sys/types.h>
 #include <uniconv.h>
 #include <unistd.h>
@@ -2680,6 +2681,34 @@ scm_init_posix ()
 #endif
 #ifdef AT_EACCESS
   scm_c_define ("AT_EACCESS", scm_from_int (AT_EACCESS));
+#endif
+
+#ifdef ST_MANDLOCK
+  scm_c_define ("ST_MANDLOCK", scm_from_int (ST_MANDLOCK));
+#endif
+#ifdef ST_NOATIME
+  scm_c_define ("ST_NOATIME", scm_from_int (ST_NOATIME));
+#endif
+#ifdef ST_NODEV
+  scm_c_define ("ST_NODEV", scm_from_int (ST_NODEV));
+#endif
+#ifdef ST_NODIRATIME
+  scm_c_define ("ST_NODIRATIME", scm_from_int (ST_NODIRATIME));
+#endif
+#ifdef ST_NOEXEC
+  scm_c_define ("ST_NOEXEC", scm_from_int (ST_NOEXEC));
+#endif
+#ifdef ST_NOSUID
+  scm_c_define ("ST_NOSUID", scm_from_int (ST_NOSUID));
+#endif
+#ifdef ST_RDONLY
+  scm_c_define ("ST_RDONLY", scm_from_int (ST_RDONLY));
+#endif
+#ifdef ST_RELATIME
+  scm_c_define ("ST_RELATIME", scm_from_int (ST_RELATIME));
+#endif
+#ifdef ST_SYNCHRONOUS
+  scm_c_define ("ST_SYNCHRONOUS", scm_from_int (ST_SYNCHRONOUS));
 #endif
 
 #include "cpp-SIG.c"

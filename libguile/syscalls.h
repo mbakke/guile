@@ -53,6 +53,7 @@
 # define dirent_or_dirent64             dirent
 #endif
 #define fstat_or_fstat64                CHOOSE_LARGEFILE(fstat,fstat64)
+#define fstatvfs_or_fstatvfs64          CHOOSE_LARGEFILE(fstatvfs,fstatvfs64)
 #define ftruncate_or_ftruncate64        CHOOSE_LARGEFILE(ftruncate,ftruncate64)
 #define lseek_or_lseek64                CHOOSE_LARGEFILE(lseek,lseek64)
 #define lstat_or_lstat64                CHOOSE_LARGEFILE(lstat,lstat64)
@@ -66,12 +67,15 @@
 # define readdir_r_or_readdir64_r       readdir_r
 #endif
 #define stat_or_stat64                  CHOOSE_LARGEFILE(stat,stat64)
+#define statvfs_or_statvfs64            CHOOSE_LARGEFILE(statvfs,statvfs64)
 #define fstatat_or_fstatat64            CHOOSE_LARGEFILE(fstatat,fstatat64)
 #define truncate_or_truncate64          CHOOSE_LARGEFILE(truncate,truncate64)
 #define scm_from_off_t_or_off64_t       CHOOSE_LARGEFILE(scm_from_off_t,scm_from_int64)
 #define scm_from_ino_t_or_ino64_t       CHOOSE_LARGEFILE(scm_from_ulong,scm_from_uint64)
 #define scm_from_blkcnt_t_or_blkcnt64_t CHOOSE_LARGEFILE(scm_from_ulong,scm_from_uint64)
 #define scm_to_off_t_or_off64_t         CHOOSE_LARGEFILE(scm_to_off_t,scm_to_int64)
+#define scm_from_fsblkcnt_t_or_fsblkcnt64_t CHOOSE_LARGEFILE(scm_from_ulong,scm_from_uint64)
+#define scm_from_fsfilcnt_t_or_fsfilcnt64_t CHOOSE_LARGEFILE(scm_from_ulong,scm_from_uint64)
 
 #if SIZEOF_OFF_T == 4
 #  define scm_to_off_t    scm_to_int32

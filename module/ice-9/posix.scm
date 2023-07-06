@@ -41,6 +41,18 @@
 (define (stat:type f) (vector-ref f 13))
 (define (stat:perms f) (vector-ref f 14))
 
+(define (statvfs:block-size f) (vector-ref f 0))
+(define (statvfs:fragment-size f) (vector-ref f 1))
+(define (statvfs:blocks f) (vector-ref f 2))
+(define (statvfs:blocks-free f) (vector-ref f 3))
+(define (statvfs:blocks-available f) (vector-ref f 4))
+(define (statvfs:files f) (vector-ref f 5))
+(define (statvfs:files-free f) (vector-ref f 6))
+(define (statvfs:files-available f) (vector-ref f 7))
+(define (statvfs:fsid f) (vector-ref f 8))
+(define (statvfs:flags f) (vector-ref f 9))
+(define (statvfs:name-max f) (vector-ref f 10))
+
 (define (passwd:name obj) (vector-ref obj 0))
 (define (passwd:passwd obj) (vector-ref obj 1))
 (define (passwd:uid obj) (vector-ref obj 2))

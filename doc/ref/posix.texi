@@ -794,6 +794,56 @@ referred to by the file port @var{dir} instead.  The optional argument
 @var{filename} will not be dereferenced even if it is a symbolic link.
 @end deffn
 
+@deffn {Scheme Procedure} statvfs object [exception-on-error?]
+@deffnx {C Function} scm_statvfs (object, exception_on_error)
+Return an object containing various information about the file system
+determined by @var{object}.  @var{object} can be a string containing
+a file name or a port or integer file descriptor which is open
+on a file (in which case @code{fstatvfs} is used as the underlying
+system call).
+
+@c TODO: Under which circumstances can statvfs return error?
+If the optional @var{exception_on_error} argument is true, which
+is the default, an exception will be raised if the underlying
+system call returns an error. Otherwise, an error will cause
+@code{statvfs} to return @code{#f}.
+
+The object returned by @code{statvfs} can be passed as a single
+parameter to the following procedures, all of which return
+integers:
+
+@deffn {Scheme Procedure} statvfs:block-size st
+The file system block size.
+@end deffn
+@deffn {Scheme Procedure} statvfs:fragment-size st
+The file system fragment size.
+@end deffn
+@deffn {Scheme Procedure} statvfs:blocks st
+The size of the file system in @code{fragment-size} units.
+@end deffn
+@deffn {Scheme Procedure} statvfs:blocks-free st
+The number of free blocks on the file system.
+@end deffn
+@deffn {Scheme Procedure} statvfs:blocks-available st
+The number of free blocks available for unprivileged users.
+@end deffn
+@deffn {Scheme Procedure} statvfs:files st
+The total number of inodes.
+@end deffn
+@deffn {Scheme Procedure} statvfs:files-free st
+The number of free inodes.
+@end deffn
+@deffn {Scheme Procedure} statvfs:files-available st
+The number of free inodes available for unprivileged users.
+@end deffn
+@deffn {Scheme Procedure} statvfs:fsid st
+The file system identifier.
+@end deffn
+@deffn {Scheme Procedure} statvfs:name-max st
+The maximum supported file name length.
+@end deffn
+@end deffn
+
 @deffn {Scheme Procedure} readlink path
 @deffnx {C Function} scm_readlink (path)
 Return the value of the symbolic link named by @var{path} (a string, or
